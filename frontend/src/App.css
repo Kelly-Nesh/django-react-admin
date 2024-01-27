@@ -1,0 +1,7 @@
+#root {
+  height: 100svh;
+  background-color: #050217;
+}
+#root > * {
+  color: white;
+}
