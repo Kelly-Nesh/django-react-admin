@@ -3,6 +3,9 @@
   z-index: 1;
   background-color: white;
 }
+.model-card {
+  background-color: transparent;
+}
 .model-card:hover {
   box-shadow: 0px 0px 10px 0px darkslategray;
 }

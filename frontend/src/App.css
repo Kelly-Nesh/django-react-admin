@@ -1,5 +1,5 @@
 #root {
-  height: 100svh;
+  min-height: 100svh;
   background-color: #050217;
 }
 #root > * {
