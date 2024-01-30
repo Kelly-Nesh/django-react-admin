@@ -10,7 +10,7 @@ const Login = () => {
     await axios
       .post(API_URL + "login/", { username: "nesh", password: 1234 })
       .then((r) => {
-        cl(0, r.data.token);
+        // cl(0, r.data.token);
         setCookie("token", r.data.token);
       })
       .catch((e) => {
@@ -23,9 +23,7 @@ const Login = () => {
     }
   }, [cookies.token]);
   return (
-    <div>
-      <Link to="admin/">Admin</Link>
-    </div>
+    <div>{cookies.token ? <Link to="admin/">Admin</Link> : "nothing"}</div>
   );
 };
 

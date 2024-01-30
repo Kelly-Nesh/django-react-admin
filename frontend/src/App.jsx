@@ -1,12 +1,14 @@
 import "./App.css";
-import "mdb-react-ui-kit/dist/css/mdb.min.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { CookiesProvider } from "react-cookie";
 
 import Login from "./admin/login.jsx";
 import Admin from "./admin/admin.jsx";
-import { CookiesProvider } from "react-cookie";
+import AdminEdit from "./admin/adminEdit.jsx";
+import AdminAdd from "./admin/adminAdd.jsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <Outlet /> },
@@ -17,13 +19,13 @@ const router = createBrowserRouter([
 
   {
     path: "admin",
-    element: <Admin />,
     children: [
+      { path: "", element: <Admin /> },
       {
         path: ":model/",
         children: [
-          { path: "add", element: <Outlet /> },
-          { path: ":item", element: <Outlet /> },
+          { path: "add", element: <AdminAdd /> },
+          { path: ":item", element: <AdminEdit /> },
         ],
       },
     ],
@@ -32,7 +34,7 @@ const router = createBrowserRouter([
 
 export const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 5, refetchOnWindowFocus: false, refetchOnMount: false },
+    queries: { retry: 5, refetchOnWindowFocus: true, refetchOnMount: true },
   },
 });
 

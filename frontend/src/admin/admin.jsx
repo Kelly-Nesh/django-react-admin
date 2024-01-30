@@ -2,21 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetModels } from "../hooks/useGetModel";
 import "./admin.css";
-import { BASE_URL } from "../api/base";
-import {
-  MDBCard,
-  MDBCardImage,
-  MDBCardTitle,
-  MDBCol,
-  MDBContainer,
-  MDBRow,
-} from "mdb-react-ui-kit";
+import { BASE_URL, LoadingScreen, cl, LAYOUT } from "../api/base";
 import { useCookies } from "react-cookie";
-import { LoadingScreen, cl } from "../api/base";
+
+const { Container, Row, Col, Card } = LAYOUT;
 
 const Admin = () => {
   const [cookies, setCookie] = useCookies(["cookie-token"]);
-  cl(1, cookies.token);
+  // cl(1, cookies.token);
   const { data, isLoading, error } = useGetModels(cookies.token);
   if (error) return error.message;
   if (isLoading) return <LoadingScreen />;
@@ -31,9 +24,9 @@ function DataDisplay({ models }) {
   const [selected_data, setSelectedData] = useState(keys[0]);
   // cl(models[selected_data], models, selected_data);
   return (
-    <MDBContainer fluid>
-      <MDBRow>
-        <MDBCol size={4}>
+    <Container fluid>
+      <Row>
+        <Col xs={4}>
           {keys.map((k) => (
             <h3
               key={k}
@@ -45,49 +38,51 @@ function DataDisplay({ models }) {
               {k}
             </h3>
           ))}
-        </MDBCol>
-        <MDBCol size={12} sm={8}>
-          <MDBRow className="gy-3">
+        </Col>
+        <Col xs={12} sm={8}>
+          <Row className="gy-3">
             <DataCards data={models[selected_data]} model={selected_data} />
-          </MDBRow>
-        </MDBCol>
-      </MDBRow>
-    </MDBContainer>
+          </Row>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
 function DataCards({ data, model }) {
   const navigate = useNavigate();
   const [cookie, setCookie] = useCookies("item");
-  // cl(data);
+
   function itemEdit(slug) {
     const item = data.find((d) => {
-      d.slug === slug;
+      return d.slug === slug;
     });
-    cl(item);
     setCookie("item", item);
-    navigate(model + "/" + slug);
+    navigate(model.toLowerCase() + "/" + slug);
   }
+
   return data.map((d) => {
     return (
-      <MDBCol size={4} md={3} key={d.name}>
-        <MDBCard
+      <Col xs={6} md={3} key={d.name}>
+        <Card
           className="h-100 w-100 model-card"
           role="button"
-          onClick={() => {itemEdit(slug)}}
+          onClick={() => {
+            itemEdit(d.slug);
+          }}
         >
-          {d.images && (
-            <MDBCardImage
+          {d.images[0] && (
+            <Card.Img
               src={BASE_URL + d.images[0].image}
               className="w-100 h-75"
             />
           )}
-          {d.name && <MDBCardTitle>{d.name}</MDBCardTitle>}
+          {d.name && <Card.Title className="text-white">{d.name}</Card.Title>}
           {d.image && (
-            <MDBCardImage src={BASE_URL + d.image} className="w-100 h-100" />
+            <Card.Img src={BASE_URL + d.image} className="w-100 h-100" />
           )}
-        </MDBCard>
-      </MDBCol>
+        </Card>
+      </Col>
     );
   });
 }
