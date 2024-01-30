@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetModels } from "../hooks/useGetModel";
 import "./admin.css";
@@ -9,11 +9,10 @@ const { Container, Row, Col, Card } = LAYOUT;
 
 const Admin = () => {
   const [cookies, setCookie] = useCookies(["cookie-token"]);
-  // cl(1, cookies.token);
   const { data, isLoading, error } = useGetModels(cookies.token);
   if (error) return error.message;
   if (isLoading) return <LoadingScreen />;
-  // cl(data.data);
+
   return <DataDisplay models={data.data} />;
 };
 
@@ -53,6 +52,10 @@ function DataCards({ data, model }) {
   const navigate = useNavigate();
   const [cookie, setCookie] = useCookies("item");
 
+  useEffect(() => {
+    setCookie("item", null)
+  }, []);
+  cl(data.data);
   function itemEdit(slug) {
     const item = data.find((d) => {
       return d.slug === slug;

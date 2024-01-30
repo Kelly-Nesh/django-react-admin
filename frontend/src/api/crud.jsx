@@ -8,10 +8,10 @@ export async function getAllModels(token) {
   return await axios.get(API_URL, HEADERS);
 }
 
-export async function createModel({ model, token, image }) {
-  // cl("axios-create", model, token, image);
+export async function createModel({ model, token, data }) {
+  // cl("axios-create", model, token, data);
   HEADERS.headers.Authorization = "Token " + token;
-  return await axios.post(API_URL + "image/", image, HEADERS);
+  return await axios.post(`${API_URL}${model}/`, data, HEADERS);
 }
 
 export async function updateModel({ token, data, model, slug }) {

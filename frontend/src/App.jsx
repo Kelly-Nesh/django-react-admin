@@ -24,8 +24,8 @@ const router = createBrowserRouter([
       {
         path: ":model/",
         children: [
-          { path: "add", element: <AdminAdd /> },
-          { path: ":item", element: <AdminEdit /> },
+          { path: "add", element: <AdminEdit /> },
+          { path: ":slug", element: <AdminEdit /> },
         ],
       },
     ],
