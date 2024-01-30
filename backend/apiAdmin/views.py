@@ -10,6 +10,8 @@ from .models import Events
 from .serializers import EventsSerializer
 
 """Return all models which user has access to"""
+
+
 class LoginAPIView(APIView):
     authentication_classes = [TokenAuthentication]
 
@@ -38,5 +40,5 @@ class BasicAdminDisplay(APIView):
         models = {}
         for model in self.MODELS:
             models[model[0]] = model[2](model[1].objects.order_by("-id"),
-                                             many=True).data
+                                        many=True).data
         return Response(data=models)

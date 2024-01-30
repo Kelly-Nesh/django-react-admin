@@ -88,12 +88,11 @@ function ProductForm() {
       slug: item.slug,
       type: type,
       category: category,
-      images: images,
     };
 
     let res = await productSchema
       .validate(data)
-      .then((r) => {})
+      .then(() => {})
       .catch((e) => {
         setDisabled(true);
         setWarning(e.message);
@@ -107,7 +106,15 @@ function ProductForm() {
       if (item[d] === data[d]) continue;
       form_data.append(d, data[d]);
     }
-
+    if (item["images"] !== images) {
+      const imgArr = images.map(({ image }) => image);
+      item["images"].forEach(({ image }) => {
+        if (!imgArr.includes(image)) form_data.append("images", image);
+      });
+      /*
+    images.foreach(())
+      */
+    }
     let uploadedImages;
     if (newImages) {
       const form = new FormData();
