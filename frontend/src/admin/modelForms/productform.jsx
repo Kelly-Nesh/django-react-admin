@@ -50,7 +50,6 @@ export default function ProductForm () {
 
   useEffect(() => {
     warning && setTimeout(() => setWarning(), 5000);
-    disabled && setTimeout(() => setDisabled(false), 5000);
   }, [warning]);
 
   async function handleSubmit (e) {
@@ -153,7 +152,7 @@ export default function ProductForm () {
         <Col>
           <Form.Control
             onChange={(e) => {
-              setDisabled(false);
+              disabled && setDisabled(false);
               setName(e.target.value);
             }}
             id='id_name'
@@ -172,6 +171,7 @@ export default function ProductForm () {
         <Col>
           <Form.Control
             onChange={(e) => {
+              disabled && setDisabled(false);
               setPrice(e.target.value);
             }}
             id='id_price'
@@ -190,12 +190,12 @@ export default function ProductForm () {
           <Form.Select
             value={category}
             onChange={(e) => {
-              setDisabled(false);
+              disabled && setDisabled(false);
               setCategory(e.target.value);
               category === '' && setType('');
             }}
           >
-            <option value=''>---------</option>
+            <option value=''>Choose category</option>
             <option value='hair'>Hair</option>
             <option value='hair-products'>Hair products</option>
             <option value='jewelry'>Jewelry</option>
@@ -212,10 +212,11 @@ export default function ProductForm () {
             <Form.Select
               value={type}
               onChange={(e) => {
+                disabled && setDisabled(false);
                 setType(e.target.value);
               }}
             >
-              <option value=''>---------</option>
+              <option value=''>Select type</option>
               {[
                 ['braids', 'Braids'],
                 ['crotchets', 'Crotchets'],
@@ -241,6 +242,7 @@ export default function ProductForm () {
         <Col>
           <Form.Control
             onChange={(e) => {
+              disabled && setDisabled(false);
               setColor(e.target.value);
             }}
             id='id_color'
@@ -290,6 +292,7 @@ function DisplayImages () {
               checked
               value={image}
               onChange={(e) => {
+                disabled && setDisabled(false);
                 e.target.checked = false;
                 if (!e.target.checked) {
                   setImages(images?.filter((i) => i.image !== image));

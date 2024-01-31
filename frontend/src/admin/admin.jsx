@@ -21,7 +21,7 @@ export default Admin;
 function DataDisplay ({ models }) {
   const keys = Object.keys(models);
   const [selectedData, setSelectedData] = useState(keys[0]);
-  // cl(models[selectedData], models, selectedData);
+
   return (
     <Container fluid>
       <Row>
@@ -55,7 +55,7 @@ function DataCards ({ data, model }) {
   useEffect(() => {
     setCookie('item', null);
   }, []);
-  cl(data.data);
+
   function itemEdit (slug) {
     const item = data.find((d) => {
       return d.slug === slug;
