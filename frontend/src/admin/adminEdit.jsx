@@ -1,23 +1,23 @@
-import React, { createContext } from "react";
-import { useParams } from "react-router-dom";
-import { useCookies } from "react-cookie";
-import { LAYOUT } from "../api/base";
+import React, { createContext } from 'react';
+import { useParams } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+import { LAYOUT } from '../api/base';
+import ProductForm from './modelForms/productform';
 
 export const DataDisplayContext = createContext();
 
 const { Container } = LAYOUT;
-import ProductForm from "./modelForms/productform";
 export const modelForm = {
   product: <ProductForm />,
   service: <ServiceForm />,
   client: <ClientForm />,
-  image: <ImageForm />,
+  image: <ImageForm />
 };
 
 const AdminEdit = () => {
-  const { model, slug } = useParams();
-  const item = useCookies("item")[0].item;
-  const token = useCookies("token")[0].token;
+  const { model } = useParams();
+  const item = useCookies('item')[0].item;
+  const token = useCookies('token')[0].token;
 
   if (!token) return <p>Sorry. Login again.</p>;
 
@@ -32,6 +32,6 @@ const AdminEdit = () => {
 
 export default AdminEdit;
 
-function ServiceForm(props) {}
-function ClientForm(props) {}
-function ImageForm(props) {}
+function ServiceForm (props) {}
+function ClientForm (props) {}
+function ImageForm (props) {}

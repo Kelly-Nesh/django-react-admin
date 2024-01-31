@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useGetModels } from "../hooks/useGetModel";
-import "./admin.css";
-import { BASE_URL, LoadingScreen, cl, LAYOUT } from "../api/base";
-import { useCookies } from "react-cookie";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useGetModels } from '../hooks/useGetModel';
+import './admin.css';
+import { BASE_URL, LoadingScreen, cl, LAYOUT } from '../api/base';
+import { useCookies } from 'react-cookie';
 
 const { Container, Row, Col, Card } = LAYOUT;
 
 const Admin = () => {
-  const [cookies, setCookie] = useCookies(["cookie-token"]);
+  const cookies = useCookies(['cookie-token'])[0];
   const { data, isLoading, error } = useGetModels(cookies.token);
   if (error) return error.message;
   if (isLoading) return <LoadingScreen />;
@@ -18,10 +18,10 @@ const Admin = () => {
 
 export default Admin;
 
-function DataDisplay({ models }) {
+function DataDisplay ({ models }) {
   const keys = Object.keys(models);
-  const [selected_data, setSelectedData] = useState(keys[0]);
-  // cl(models[selected_data], models, selected_data);
+  const [selectedData, setSelectedData] = useState(keys[0]);
+  // cl(models[selectedData], models, selectedData);
   return (
     <Container fluid>
       <Row>
@@ -32,15 +32,15 @@ function DataDisplay({ models }) {
               onClick={() => {
                 setSelectedData(k);
               }}
-              role="button"
+              role='button'
             >
               {k}
             </h3>
           ))}
         </Col>
         <Col xs={12} sm={8}>
-          <Row className="gy-3">
-            <DataCards data={models[selected_data]} model={selected_data} />
+          <Row className='gy-3'>
+            <DataCards data={models[selectedData]} model={selectedData} />
           </Row>
         </Col>
       </Row>
@@ -48,28 +48,28 @@ function DataDisplay({ models }) {
   );
 }
 
-function DataCards({ data, model }) {
+function DataCards ({ data, model }) {
   const navigate = useNavigate();
-  const [cookie, setCookie] = useCookies("item");
+  const setCookie = useCookies('item')[1];
 
   useEffect(() => {
-    setCookie("item", null)
+    setCookie('item', null);
   }, []);
   cl(data.data);
-  function itemEdit(slug) {
+  function itemEdit (slug) {
     const item = data.find((d) => {
       return d.slug === slug;
     });
-    setCookie("item", item);
-    navigate(model.toLowerCase() + "/" + slug);
+    setCookie('item', item);
+    navigate(model.toLowerCase() + '/' + slug);
   }
 
   return data.map((d) => {
     return (
       <Col xs={6} md={3} key={d.name}>
         <Card
-          className="h-100 w-100 model-card"
-          role="button"
+          className='h-100 w-100 model-card'
+          role='button'
           onClick={() => {
             itemEdit(d.slug);
           }}
@@ -77,12 +77,12 @@ function DataCards({ data, model }) {
           {d.images[0] && (
             <Card.Img
               src={BASE_URL + d.images[0].image}
-              className="w-100 h-75"
+              className='w-100 h-75'
             />
           )}
-          {d.name && <Card.Title className="text-white">{d.name}</Card.Title>}
+          {d.name && <Card.Title className='text-white'>{d.name}</Card.Title>}
           {d.image && (
-            <Card.Img src={BASE_URL + d.image} className="w-100 h-100" />
+            <Card.Img src={BASE_URL + d.image} className='w-100 h-100' />
           )}
         </Card>
       </Col>

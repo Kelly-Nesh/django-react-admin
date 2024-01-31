@@ -1,14 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
-import { createModel } from "../api/crud";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createModel } from '../api/crud';
 
-function useCreateModel() {
+function useCreateModel () {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createModel,
     onSuccess: () => {
-      queryClient.invalidateQueries(["models"]);
-    },
+      queryClient.invalidateQueries(['models']);
+    }
   });
 }
 export default useCreateModel;

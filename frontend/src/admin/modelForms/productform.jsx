@@ -1,14 +1,14 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { object, string, number } from "yup";
-import useUpdateModel from "../../hooks/useUpdateModel";
-import useCreateModel from "../../hooks/useCreateModel";
-import { useNavigate } from "react-router-dom";
-import { BASE_URL, cl, LAYOUT } from "../../api/base";
-import { DataDisplayContext } from "../adminEdit";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { object, string, number } from 'yup';
+import useUpdateModel from '../../hooks/useUpdateModel';
+import useCreateModel from '../../hooks/useCreateModel';
+import { useNavigate } from 'react-router-dom';
+import { BASE_URL, cl, LAYOUT } from '../../api/base';
+import { DataDisplayContext } from '../adminEdit';
 const ImageContext = createContext();
 const { Alert, Row, Col, Form, Button } = LAYOUT;
 
-export default function ProductForm() {
+export default function ProductForm () {
   const [item, token, model] = useContext(DataDisplayContext);
   const navigate = useNavigate();
 
@@ -19,15 +19,15 @@ export default function ProductForm() {
     product_type: string(),
     color: string().max(70),
     description: string(),
-    comment: string(),
+    comment: string()
   });
 
   // Item values
-  const [name, setName] = useState(item?.name || "");
-  const [price, setPrice] = useState(item?.price || "");
-  const [color, setColor] = useState(item?.color || "");
-  const [type, setType] = useState(item?.type || "");
-  const [category, setCategory] = useState(item?.category || "");
+  const [name, setName] = useState(item?.name || '');
+  const [price, setPrice] = useState(item?.price || '');
+  const [color, setColor] = useState(item?.color || '');
+  const [type, setType] = useState(item?.type || '');
+  const [category, setCategory] = useState(item?.category || '');
   const [images, setImages] = useState(item?.images || []);
 
   // cl(category, type);
@@ -41,52 +41,52 @@ export default function ProductForm() {
   const [disabled, setDisabled] = useState(true);
 
   // Alert message
-  const [warning, setWarning] = useState("");
+  const [warning, setWarning] = useState('');
 
   // Post to db
   const { mutateAsync: modelUpdate } = useUpdateModel();
   const { mutateAsync: modelCreate } = useCreateModel();
-  const create_or_update = item ? modelUpdate : modelCreate;
+  const createOrUpdate = item ? modelUpdate : modelCreate;
 
   useEffect(() => {
     warning && setTimeout(() => setWarning(), 5000);
     disabled && setTimeout(() => setDisabled(false), 5000);
   }, [warning]);
 
-  async function handleSubmit(e) {
+  async function handleSubmit (e) {
     e.preventDefault();
     setDisabled(true);
     const data = {
-      name: name,
-      price: price,
-      color: color,
+      name,
+      price,
+      color,
       slug: item?.slug,
-      type: type,
-      category: category,
+      type,
+      category
     };
 
-    let res = await productSchema
+    const res = await productSchema
       .validate(data)
       .then(() => {})
       .catch((e) => {
         setWarning(e.message);
         setDisabled(false);
-        return "error";
+        return 'error';
       });
-    if (res === "error") return;
+    if (res === 'error') return;
 
-    const form_data = new FormData();
-    for (let d in data) {
+    const formData = new FormData();
+    for (const d in data) {
       // if not changed
       if (item && item[d] === data[d]) continue;
-      form_data.append(d, data[d]);
+      formData.append(d, data[d]);
     }
 
     /* Getting the removed images */
-    if (item && item["images"] !== images) {
+    if (item && item.images !== images) {
       const imgArr = images?.map(({ image }) => image);
-      item["images"].forEach(({ image }) => {
-        if (!imgArr.includes(image)) form_data.append("images", image);
+      item.images.forEach(({ image }) => {
+        if (!imgArr.includes(image)) formData.append('images', image);
       });
     }
 
@@ -94,11 +94,11 @@ export default function ProductForm() {
 
     if (newImages) {
       const form = new FormData();
-      newImages.forEach((f) => form.append("image", f));
+      newImages.forEach((f) => form.append('image', f));
       const addData = {
         data: form,
-        model: "image",
-        token: token,
+        model: 'image',
+        token
       };
       // upload new images first
       try {
@@ -114,12 +114,12 @@ export default function ProductForm() {
     }
     try {
       uploadedImages &&
-        uploadedImages.forEach((i) => form_data.append("newimages", i));
-      await create_or_update({
-        token: token,
-        data: form_data,
+        uploadedImages.forEach((i) => formData.append('newimages', i));
+      await createOrUpdate({
+        token,
+        data: formData,
         slug: item?.slug,
-        model: model,
+        model
       }).then(() => {
         navigate(-1);
       });
@@ -134,20 +134,20 @@ export default function ProductForm() {
   return (
     <Form
       onSubmit={handleSubmit}
-      className="p-3 mx-auto"
-      style={{ maxWidth: "1350px" }}
+      className='p-3 mx-auto'
+      style={{ maxWidth: '1350px' }}
     >
       {warning && (
         <Alert
-          className="text-center text-capitalize"
-          variant="danger"
-          style={{ width: "max-content" }}
+          className='text-center text-capitalize'
+          variant='danger'
+          style={{ width: 'max-content' }}
         >
           {warning}
         </Alert>
       )}
-      <Row className="mb-3">
-        <Col sm={3} className="m-auto">
+      <Row className='mb-3'>
+        <Col sm={3} className='m-auto'>
           <Form.Label>Name: </Form.Label>
         </Col>
         <Col>
@@ -156,17 +156,17 @@ export default function ProductForm() {
               setDisabled(false);
               setName(e.target.value);
             }}
-            id="id_name"
-            name="name"
-            type="text"
+            id='id_name'
+            name='name'
+            type='text'
             required
-            maxLength="250"
+            maxLength='250'
             value={name}
           />
         </Col>
       </Row>
-      <Row className="mb-3">
-        <Col sm={3} className="m-auto">
+      <Row className='mb-3'>
+        <Col sm={3} className='m-auto'>
           <Form.Label>Price: </Form.Label>
         </Col>
         <Col>
@@ -174,16 +174,16 @@ export default function ProductForm() {
             onChange={(e) => {
               setPrice(e.target.value);
             }}
-            id="id_price"
-            name="price"
-            type="text"
-            maxLength="50"
+            id='id_price'
+            name='price'
+            type='text'
+            maxLength='50'
             value={price}
           />
         </Col>
       </Row>
-      <Row className="mb-3">
-        <Col sm={3} className="m-auto">
+      <Row className='mb-3'>
+        <Col sm={3} className='m-auto'>
           <Form.Label>Category: </Form.Label>
         </Col>
         <Col>
@@ -192,20 +192,20 @@ export default function ProductForm() {
             onChange={(e) => {
               setDisabled(false);
               setCategory(e.target.value);
-              category === "" && setType("");
+              category === '' && setType('');
             }}
           >
-            <option value="">---------</option>
-            <option value="hair">Hair</option>
-            <option value="hair-products">Hair products</option>
-            <option value="jewelry">Jewelry</option>
-            <option value="cosmetics">Cosmetics</option>
+            <option value=''>---------</option>
+            <option value='hair'>Hair</option>
+            <option value='hair-products'>Hair products</option>
+            <option value='jewelry'>Jewelry</option>
+            <option value='cosmetics'>Cosmetics</option>
           </Form.Select>
         </Col>
       </Row>
-      {category === "hair" && (
-        <Row className="mb-3">
-          <Col sm={3} className="m-auto">
+      {category === 'hair' && (
+        <Row className='mb-3'>
+          <Col sm={3} className='m-auto'>
             <Form.Label>Type: </Form.Label>
           </Col>
           <Col>
@@ -215,13 +215,13 @@ export default function ProductForm() {
                 setType(e.target.value);
               }}
             >
-              <option value="">---------</option>
+              <option value=''>---------</option>
               {[
-                ["braids", "Braids"],
-                ["crotchets", "Crotchets"],
-                ["extensions", "Extensions"],
-                ["locs", "Locs"],
-                ["weaves", "Weaves"],
+                ['braids', 'Braids'],
+                ['crotchets', 'Crotchets'],
+                ['extensions', 'Extensions'],
+                ['locs', 'Locs'],
+                ['weaves', 'Weaves']
               ].map(([v, d]) => {
                 return (
                   <option value={v} key={v}>
@@ -234,8 +234,8 @@ export default function ProductForm() {
         </Row>
       )}
 
-      <Row className="mb-3">
-        <Col sm={3} className="m-auto">
+      <Row className='mb-3'>
+        <Col sm={3} className='m-auto'>
           <Form.Label>Color(s): </Form.Label>
         </Col>
         <Col>
@@ -243,11 +243,11 @@ export default function ProductForm() {
             onChange={(e) => {
               setColor(e.target.value);
             }}
-            id="id_color"
-            name="color"
-            type="text"
+            id='id_color'
+            name='color'
+            type='text'
             required
-            maxLength="250"
+            maxLength='250'
             value={color}
           />
         </Col>
@@ -261,20 +261,20 @@ export default function ProductForm() {
             setReset,
             newImages,
             setNewImages,
-            item,
+            item
           }}
         >
           <DisplayImages />
         </ImageContext.Provider>
       </Row>
-      <Button type="submit" disabled={disabled}>
+      <Button type='submit' disabled={disabled}>
         Submit
       </Button>
     </Form>
   );
 }
 
-function DisplayImages() {
+function DisplayImages () {
   const { images, setImages, reset, setReset, newImages, setNewImages, item } =
     useContext(ImageContext);
   return (
@@ -283,11 +283,11 @@ function DisplayImages() {
         return (
           <Col xs={6} md={4} lg={3} key={image + idx}>
             <Form.Check
-              label="image"
-              name="checkbox-image"
-              type="checkbox"
-              id={"image-checkbox-" + { idx }}
-              checked={true}
+              label='image'
+              name='checkbox-image'
+              type='checkbox'
+              id={'image-checkbox-' + { idx }}
+              checked
               value={image}
               onChange={(e) => {
                 e.target.checked = false;
@@ -297,14 +297,14 @@ function DisplayImages() {
                 }
               }}
             />
-            <Form.Label style={{ height: "15rem" }}>
-              <img src={BASE_URL + image} alt="image" className="w-100 h-100" />
+            <Form.Label style={{ height: '15rem' }}>
+              <img src={BASE_URL + image} alt='image' className='w-100 h-100' />
             </Form.Label>
           </Col>
         );
       })}
 
-      <Col xs={12} className="mt-3">
+      <Col xs={12} className='mt-3'>
         {reset && (
           <Button
             onClick={() => {
@@ -323,21 +323,21 @@ function DisplayImages() {
           newImages.map((i, idx) => (
             <div
               key={idx + i}
-              className="m-1 mb-5 d-inline-block"
-              style={{ maxHeight: "16rem", maxWidth: "11rem" }}
+              className='m-1 mb-5 d-inline-block'
+              style={{ maxHeight: '16rem', maxWidth: '11rem' }}
             >
               <Form.Check
-                className="w-100 pb-1"
-                id={"new-image-" + idx}
-                checked={true}
+                className='w-100 pb-1'
+                id={'new-image-' + idx}
+                checked
                 onChange={(e) => setNewImages(newImages.filter((n) => n !== i))}
               />
               <img
                 src={URL.createObjectURL(i)}
                 alt={i.name}
                 key={idx}
-                className="img-thumbnail w-100"
-                style={{ height: "15rem" }}
+                className='img-thumbnail w-100'
+                style={{ height: '15rem' }}
               />
             </div>
           ))}
@@ -345,10 +345,10 @@ function DisplayImages() {
       <Col>
         <Form.Label>Add images: </Form.Label>
         <Form.Control
-          className="my-3 mx-1"
-          type="file"
+          className='my-3 mx-1'
+          type='file'
           multiple
-          accept="image/png, image/jpeg, image/jpg"
+          accept='image/png, image/jpeg, image/jpg'
           onChange={(e) => {
             const fileList = e.target.files;
             if (fileList) {
