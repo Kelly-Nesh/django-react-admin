@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useGetModels } from '../hooks/useGetModel';
-import './admin.css';
-import { BASE_URL, LoadingScreen, cl, LAYOUT } from '../api/base';
-import { useCookies } from 'react-cookie';
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useGetModels } from "./hooks/useGetModel";
+import "./admin.css";
+import { BASE_URL, LoadingScreen, cl, LAYOUT } from "./api/base";
+import { useCookies } from "react-cookie";
 
 const { Container, Row, Col, Card } = LAYOUT;
 
 const Admin = () => {
-  const cookies = useCookies(['cookie-token'])[0];
+  const cookies = useCookies(["cookie-token"])[0];
   const { data, isLoading, error } = useGetModels(cookies.token);
   if (error) return error.message;
   if (isLoading) return <LoadingScreen />;
@@ -18,9 +18,11 @@ const Admin = () => {
 
 export default Admin;
 
-function DataDisplay ({ models }) {
+function DataDisplay({ models }) {
   const keys = Object.keys(models);
-  const [selectedData, setSelectedData] = useState(keys[0]);
+  const [selectedModel, setselectedModel] = useState(
+    sessionStorage.getItem("model") || keys[0]
+  );
 
   return (
     <Container fluid>
@@ -30,17 +32,29 @@ function DataDisplay ({ models }) {
             <h3
               key={k}
               onClick={() => {
-                setSelectedData(k);
+                sessionStorage.setItem("model", k);
+                setselectedModel(k);
               }}
-              role='button'
+              role="button"
             >
               {k}
             </h3>
           ))}
         </Col>
         <Col xs={12} sm={8}>
-          <Row className='gy-3'>
-            <DataCards data={models[selectedData]} model={selectedData} />
+          <Row>
+            <Col xs className="d-flex justify-content-end">
+              <Link
+                to={`${selectedModel.toLowerCase()}/add`}
+                role="button"
+                className="btn btn-info btn-rounded text-decoration-none"
+              >
+                Add a {selectedModel}
+              </Link>
+            </Col>
+          </Row>
+          <Row className="gy-3">
+            <DataCards data={models[selectedModel]} model={selectedModel} />
           </Row>
         </Col>
       </Row>
@@ -48,41 +62,28 @@ function DataDisplay ({ models }) {
   );
 }
 
-function DataCards ({ data, model }) {
+function DataCards({ data, model }) {
   const navigate = useNavigate();
-  const setCookie = useCookies('item')[1];
-
-  useEffect(() => {
-    setCookie('item', null);
-  }, []);
-
-  function itemEdit (slug) {
-    const item = data.find((d) => {
-      return d.slug === slug;
-    });
-    setCookie('item', item);
-    navigate(model.toLowerCase() + '/' + slug);
-  }
 
   return data.map((d) => {
     return (
       <Col xs={6} md={3} key={d.name}>
         <Card
-          className='h-100 w-100 model-card'
-          role='button'
+          className="h-100 w-100 model-card"
+          role="button"
           onClick={() => {
-            itemEdit(d.slug);
+            navigate(model.toLowerCase() + "/" + d.slug);
           }}
         >
           {d.images[0] && (
             <Card.Img
               src={BASE_URL + d.images[0].image}
-              className='w-100 h-75'
+              className="w-100 h-75"
             />
           )}
-          {d.name && <Card.Title className='text-white'>{d.name}</Card.Title>}
+          {d.name && <Card.Title className="text-white">{d.name}</Card.Title>}
           {d.image && (
-            <Card.Img src={BASE_URL + d.image} className='w-100 h-100' />
+            <Card.Img src={BASE_URL + d.image} className="w-100 h-100" />
           )}
         </Card>
       </Col>
