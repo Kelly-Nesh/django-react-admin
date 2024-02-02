@@ -18,7 +18,7 @@ export async function createModel({ model, token, data }) {
 }
 
 export async function updateModel({ token, data, model, slug }) {
-  cl("axios", data, token, model, slug);
+  // cl("axios", data, token, model, slug);
   HEADERS.headers.Authorization = "Token " + token;
   return await axios.patch(`${API_URL}${model}/${slug}/`, data, HEADERS);
 }

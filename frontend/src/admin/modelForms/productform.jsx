@@ -177,7 +177,8 @@ export default function ProductForm() {
             value={formState.category || ""}
             onChange={(e) => {
               handleChange(e);
-              e.target.value !== "hair" && setType("");
+              e.target.value !== "hair" &&
+                handleChange({ target: { name: "type", value: "" } });
             }}
           >
             <option value="">Choose category</option>
@@ -195,6 +196,7 @@ export default function ProductForm() {
           </Col>
           <Col>
             <Form.Select
+              name="type"
               value={formState.type || ""}
               onChange={(e) => {
                 handleChange(e);
@@ -271,7 +273,7 @@ export async function postImages(newImages, token, setWarning, modelCreate) {
 
   try {
     const { data: responseImages } = await modelCreate(addData);
-    cl(responseImages, "pi");
+    // cl(responseImages, "pi");
     return responseImages.map(({ image }) => {
       return image;
     });
