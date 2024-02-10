@@ -7,7 +7,8 @@ import Spinner from "react-bootstrap/Spinner";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 
-export const BASE_URL = "http://192.168.25.153:8000";
+const HOST_IP = window.location.hostname;
+export const BASE_URL = `http://${HOST_IP}:8000`;
 const API_URL = BASE_URL + "/api/admin/";
 export default API_URL;
 export const HEADERS = { headers: { Authorization: "Token" } };
