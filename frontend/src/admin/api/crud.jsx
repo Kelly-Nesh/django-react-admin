@@ -1,13 +1,15 @@
 import API_URL, { HEADERS, cl } from "./base";
 import axios from "axios";
 
-export async function getAllModels(token) {
+export async function getAllModels({ queryKey }) {
   // cl(3, token);
+  const [_, model, token] = queryKey;
   HEADERS.headers.Authorization = "Token " + token;
-  return await axios.get(API_URL, HEADERS);
+  return await axios.get(`${API_URL}${model}/`, HEADERS).then((r) => r.data);
 }
 export async function getItem({ queryKey }) {
   const [_, model, slug, token] = queryKey;
+  // cl(model, slug, token);
   HEADERS.headers.Authorization = "Token " + token;
   return await axios.get(`${API_URL}${model}/${slug}`, HEADERS);
 }

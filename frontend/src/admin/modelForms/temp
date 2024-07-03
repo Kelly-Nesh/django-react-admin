@@ -1,0 +1,4 @@
+custom get queryset for ordering by name
+add functionality for checking and unchecking fields
+    add them as seperate functions ?
+set new products to the right side of old products

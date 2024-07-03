@@ -2,12 +2,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { object, string, number } from "yup";
 import useUpdateModel from "../hooks/useUpdateModel";
 import useCreateModel from "../hooks/useCreateModel";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { cl, LAYOUT, LoadingScreen } from "../api/base";
 import { DataDisplayContext } from "../adminEdit";
 import { DisplayImages, postImages } from "./productform";
-import { useRetrieveItem } from "../hooks/useGetModel";
-
+import { useGetModel, useRetrieveItem } from "../hooks/useGetModel";
+import "./service.css";
 const ServiceImageContext = createContext();
 const { Alert, Row, Col, Form, Button } = LAYOUT;
 
@@ -24,7 +24,10 @@ export default function ServiceForm() {
   // User uploaded images
   const [newImages, setNewImages] = useState();
   const [removedimages, setRemovedImages] = useState([]);
+  const [addedProducts, setAddedProducts] = useState([]);
+  const [removedProducts, setRemovedProducts] = useState([]);
 
+  const [search, setSearch] = useState();
   // Disable submit button
   const [disabled, setDisabled] = useState(true);
 
@@ -33,13 +36,14 @@ export default function ServiceForm() {
 
   const [formState, setFormState] = useState({});
 
-  const { data, isLoading, error } = useRetrieveItem(model, slug, token);
-
+  const { data, isLoading, error } = useRetrieveItem({ model, slug, token });
+  // cl(model, slug, token);
+  const { data: products } = useGetModel({ model: "product", token });
   useEffect(() => {
     if (data) {
       setFormState(data.data);
     }
-  });
+  }, [data]);
 
   if (isLoading) return <LoadingScreen />;
   if (error) return "Error occured: " + error.message;
@@ -51,9 +55,11 @@ export default function ServiceForm() {
   });
 
   function handleChange(e) {
+    // cl(e.target.name, e.target.value);
+    setDisabled(false);
     setFormState({ ...formState, [e.target.name]: e.target.value });
   }
-  
+
   async function handleSubmit(e) {
     e.preventDefault();
     setDisabled(true);
@@ -81,7 +87,12 @@ export default function ServiceForm() {
       });
 
     if (newImages) {
-      let uploadedImages = await postImages(newImages, token, setWarning);
+      let uploadedImages = await postImages(
+        newImages,
+        token,
+        setWarning,
+        modelCreate
+      );
       uploadedImages &&
         uploadedImages.forEach((i) => formData.append("newimages", i));
     }
@@ -101,7 +112,23 @@ export default function ServiceForm() {
       // Array(7) [ "stack", "message", "name", "code", "config", "request", "response" ]
     }
   }
-
+  const handleSearch = (e) => {
+    if (!e.target.value) {
+      setSearch();
+      return;
+    }
+    const searched = products?.data.filter(({ name }) =>
+      name.includes(e.target.value)
+    );
+    setSearch(searched);
+  };
+  const handleProducts = (e) => {
+    if (e.target.checked) {
+      setAddedProducts((prev) => prev.concat(e.target.value));
+    } else {
+      setAddedProducts(addedProducts.filter((p) => e.target.value !== p));
+    }
+  };
 
   return (
     <Form
@@ -158,15 +185,80 @@ export default function ServiceForm() {
           <Form.Label>Product: </Form.Label>
         </Col>
         <Col>
-          <Form.Select
-            value={product[0]?.name}
-            onChange={(e) => {
-              disabled && setDisabled(false);
-              setProduct(e.target.value);
-            }}
-          >
-            <option value="">{product[0]?.name}</option>
-          </Form.Select>
+          <Form.Group>
+            <Form.Control
+              className="d-inline-block"
+              style={{ width: "80%" }}
+              type="text"
+              placeholder="Search"
+              onChange={handleSearch}
+            ></Form.Control>
+            <Link
+              to="/admin/product/add"
+              role="button"
+              className="btn btn-info btn-rounded"
+            >
+              Add
+            </Link>
+          </Form.Group>
+          {/* Search list */}
+          {search && (
+            <div className="position-absolute product-search w-50 p-2">
+              {search.map(({ name, slug }) => {
+                return (
+                  <div key={slug}>
+                    <input
+                      className="me-2"
+                      type="checkbox"
+                      checked={false}
+                      onChange={(e) => {
+                        handleProducts(e);
+                        cl(e.target.value, addedProducts);
+                        e.target.checked = !e.target.checked;
+                      }}
+                    />
+                    {name}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {/* Existing products */}
+          {formState.product && (
+            <div className="service-product">
+              {formState.product.map((p) => {
+                return (
+                  <div key={p.slug}>
+                    <input
+                      className="me-2"
+                      type="checkbox"
+                      checked={true}
+                      onChange={() => {}}
+                    />
+                    {p.name}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {/* New products */}
+          {addedProducts && (
+            <div className="service-product">
+              {addedProducts.map((p) => {
+                return (
+                  <div key={p.slug}>
+                    <input
+                      className="me-2"
+                      type="checkbox"
+                      checked={true}
+                      onChange={handleProducts}
+                    />
+                    {p.name}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </Col>
       </Row>
       <Row>

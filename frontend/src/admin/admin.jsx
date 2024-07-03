@@ -1,39 +1,75 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext, createContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useGetModels } from "./hooks/useGetModel";
+import { useGetModel } from "./hooks/useGetModel";
 import "./admin.css";
-import { BASE_URL, LoadingScreen, cl, LAYOUT } from "./api/base";
+import API_URL, { LoadingScreen, cl, LAYOUT } from "./api/base";
 import { useCookies } from "react-cookie";
+import axios from "axios";
 
 const { Container, Row, Col, Card } = LAYOUT;
+const ModelContext = createContext();
 
 const Admin = () => {
   const cookies = useCookies(["cookie-token"])[0];
-  const { data, isLoading, error } = useGetModels(cookies.token);
-  if (error) return error.message;
-  if (isLoading) return <LoadingScreen />;
+  const [model, setModel] = useState();
+  const [modelKeys, setModelKeys] = useState();
+  const [modelData, setModelData] = useState();
 
-  return <DataDisplay models={data.data} />;
+  useEffect(() => {
+    // Get models list from api
+    axios
+      .get(API_URL, {
+        headers: { Authorization: "Token " + cookies.token },
+      })
+      .then((res) => {
+        cl(res.data);
+        setModelKeys('res');
+        cl(model, modelKeys);
+        setModel(modelKeys[0]);
+      })
+      .catch(() => console.log("model keys error"));
+  }, []);
+
+  const { data, isLoading, error } = useGetModel({
+    token: cookies.token,
+    model: 'product',
+  });
+
+  useEffect(() => {
+    setModelData(data);
+    cl(data, '-');
+  }, [data]);
+
+  if (error) return error.message;
+  if (isLoading || !modelData) return <LoadingScreen />;
+
+  return (
+    <ModelContext.Provider
+      value={{ modelKeys, model, token: cookies.token, setModel, modelData }}
+    >
+      <DataDisplay />;
+    </ModelContext.Provider>
+  );
 };
 
 export default Admin;
 
-function DataDisplay({ models }) {
-  const keys = Object.keys(models);
+function DataDisplay() {
+  const { modelKeys, model, setModel } = useContext(ModelContext);
   const [selectedModel, setselectedModel] = useState(
-    sessionStorage.getItem("model") || keys[0]
+    sessionStorage.getItem("model") || model
   );
 
   return (
     <Container fluid>
       <Row>
         <Col xs={4}>
-          {keys.map((k) => (
+          {modelKeys.map((k) => (
             <h3
               key={k}
               onClick={() => {
                 sessionStorage.setItem("model", k);
-                setselectedModel(k);
+                setModel(k.toLowerCase());
               }}
               role="button"
             >
@@ -45,7 +81,7 @@ function DataDisplay({ models }) {
           <Row>
             <Col xs className="d-flex justify-content-end">
               <Link
-                to={`${selectedModel.toLowerCase()}/add`}
+                to={`${model}/add`}
                 role="button"
                 className="btn btn-info btn-rounded text-decoration-none"
               >
@@ -54,7 +90,7 @@ function DataDisplay({ models }) {
             </Col>
           </Row>
           <Row className="gy-3">
-            <DataCards data={models[selectedModel]} model={selectedModel} />
+            <DataCards />
           </Row>
         </Col>
       </Row>
@@ -62,10 +98,13 @@ function DataDisplay({ models }) {
   );
 }
 
-function DataCards({ data, model }) {
+function DataCards() {
+  const { modelData, model } = useContext(ModelContext);
   const navigate = useNavigate();
+  cl(modelData);
+  alert(model);
 
-  return data.map((d) => {
+  return modelData.map((d) => {
     return (
       <Col xs={6} md={3} key={d.name}>
         <Card
@@ -76,15 +115,10 @@ function DataCards({ data, model }) {
           }}
         >
           {d.images[0] && (
-            <Card.Img
-              src={BASE_URL + d.images[0].image}
-              className="w-100 h-75"
-            />
+            <Card.Img src={d.images[0].image} className="w-100 h-75" />
           )}
           {d.name && <Card.Title className="text-white">{d.name}</Card.Title>}
-          {d.image && (
-            <Card.Img src={BASE_URL + d.image} className="w-100 h-100" />
-          )}
+          {d.image && <Card.Img src={d.image} className="w-100 h-100" />}
         </Card>
       </Col>
     );
