@@ -28,6 +28,9 @@ INSTALLED_APPS = [
 
     'readmin',
     'testapp',
+    'apptest',
+    'modelapp',
+    'modeltest',
 ]
 
 MIDDLEWARE = [
