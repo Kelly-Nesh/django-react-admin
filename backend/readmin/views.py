@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+import readmin
 from . import ml
 from .serializer import BaseSerializer
 
@@ -38,8 +39,8 @@ class ModelView(APIView):
         """
         try:
             model = ml.get_model(modelName)
-        except ModuleNotFoundError:
-            return Response({"error": f"{modelName} is not a registered model."}, status=status.HTTP_400_BAD_REQUEST)
+        except readmin.models.ModelNotFoundError:
+            return Response({"error": f"{modelName} is not a registered model."}, status=status.HTTP_404_NOT_FOUND)
         data = model.objects.all()
         serializer = BaseSerializer(data, model=model, many=True)
         return Response(serializer.data)
