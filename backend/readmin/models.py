@@ -1,6 +1,11 @@
 from typing import Union, List
+from .serializer import BaseSerializer
 
 _MODELS = []
+
+
+class ModelNotFoundError(Exception):
+    pass
 
 
 class ModelList:
@@ -25,3 +30,12 @@ class ModelList:
 
     def register(self,  model_name: Union[str, List[str]]):
         self.models = model_name
+
+    def get_model(self, model_name):
+        """Return the model"""
+        model_names = [i.__name__.lower() for i in self.models]
+        try:
+            idx = model_names.index(model_name.lower())
+        except ValueError:
+            raise ModelNotFoundError(f"{model_name} is not a model")
+        return self.models[idx]

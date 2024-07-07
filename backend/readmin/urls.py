@@ -1,12 +1,9 @@
 # from rest_framework.routers import SimpleRouter
 from django.urls import path
-from .views import HomeView
-
-# router = SimpleRouter()
-# router.register("", HomeView, basename="home")
+from .views import HomeView, ModelView
 
 
-# urlpatterns = router.urls()
 urlpatterns = [
-    path("", HomeView.as_view(), name="home"),
+    path("/", HomeView.as_view(), name="home"),
+    path("<str:modelName>/", ModelView.as_view(), name="model_view"),
 ]
