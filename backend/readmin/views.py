@@ -38,7 +38,7 @@ class HomeView(BaseAuth, APIView):
 class ModelView(BaseAuth, APIView):
     """API endpoint for getting detailed information about a specific model"""
 
-    def get(self, request, appName, modelName):
+    def get(self, request, appName, modelName, pk=None):
         """Return detailed information about a specific model
             Parameters:
                 modelName (str): Name of the model
@@ -50,6 +50,10 @@ class ModelView(BaseAuth, APIView):
             model = ml.get_model(appName, modelName)
         except readmin.models.ModelNotFoundError:
             return Response({"error": f"{modelName} is not a registered model for {appName}."}, status=status.HTTP_404_NOT_FOUND)
-        data = model.objects.all()
-        serializer = BaseSerializer(data, model=model, many=True)
+        if not pk:
+            data = model.objects.all()
+            serializer = BaseSerializer(data, model=model, many=True)
+        else:
+            data = model.objects.get(pk=pk)
+            serializer = BaseSerializer(data, model=model)
         return Response(serializer.data)
