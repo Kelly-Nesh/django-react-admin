@@ -1,13 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 import readmin
 from . import ml
 from .serializer import BaseSerializer
 
 
-class HomeView(APIView):
+class BaseAuth:
+    """Base authentication class"""
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    # pass
+
+class HomeView(BaseAuth, APIView):
     """API endpoint for getting list of registered models"""
 
     def get(self, request):
@@ -26,10 +35,10 @@ class HomeView(APIView):
         return Response(context)
 
 
-class ModelView(APIView):
+class ModelView(BaseAuth, APIView):
     """API endpoint for getting detailed information about a specific model"""
 
-    def get(self, request, modelName):
+    def get(self, request, appName, modelName):
         """Return detailed information about a specific model
             Parameters:
                 modelName (str): Name of the model
@@ -38,9 +47,9 @@ class ModelView(APIView):
                 ModelDescription (str): Description of the model
         """
         try:
-            model = ml.get_model(modelName)
+            model = ml.get_model(appName, modelName)
         except readmin.models.ModelNotFoundError:
-            return Response({"error": f"{modelName} is not a registered model."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": f"{modelName} is not a registered model for {appName}."}, status=status.HTTP_404_NOT_FOUND)
         data = model.objects.all()
         serializer = BaseSerializer(data, model=model, many=True)
         return Response(serializer.data)

@@ -31,11 +31,14 @@ class ModelList:
     def register(self,  model_name: Union[str, List[str]]):
         self.models = model_name
 
-    def get_model(self, model_name):
+    def get_model(self, app_name, model_name):
         """Return the model"""
-        model_names = [i.__name__.lower() for i in self.models]
+        app_name = app_name.lower()
+        model_name = model_name.lower()
+        
+        model_names = [i.__name__.lower() for i in self.models if app_name in str(i).lower()]
         try:
-            idx = model_names.index(model_name.lower())
+            idx = model_names.index(model_name)
         except ValueError:
             raise ModelNotFoundError(f"{model_name} is not a model")
         return self.models[idx]

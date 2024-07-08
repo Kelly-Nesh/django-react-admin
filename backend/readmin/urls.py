@@ -4,6 +4,7 @@ from .views import HomeView, ModelView
 
 
 urlpatterns = [
-    path("/", HomeView.as_view(), name="home"),
-    path("<str:modelName>/", ModelView.as_view(), name="model_view"),
+    path("", HomeView.as_view(), name="home"),
+    path("<str:appName>/<str:modelName>/",
+         ModelView.as_view(), name="model_view"),
 ]
