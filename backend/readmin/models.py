@@ -1,7 +1,6 @@
 from typing import Union, List
 from .serializer import BaseSerializer
-
-_MODELS = []
+from django.db import models
 
 
 class ModelNotFoundError(Exception):
@@ -9,24 +8,32 @@ class ModelNotFoundError(Exception):
 
 
 class ModelList:
-    def __init__(self):
-        global _MODELS
-        self._models = _MODELS
+    __MODELS = {}
 
     @property
     def models(self):
         """Return the list of models"""
-        return self._models
+        return self.__MODELS
 
     @models.setter
     def models(self, model_name: Union[str, List[str]]):
         """Add new models to the list of models"""
-        if isinstance(model_name, list) or isinstance(model_name, tuple):
-            model_name = list(model_name) if isinstance(
-                model_name, tuple) else model_name
-            self._models.extend(model_name)
+        def create_key(k):
+            if not isinstance(k, models.base.ModelBase):
+                if isinstance(k, str):
+                    msg = f"Registered model should not be a string.\nRemove quotes from \"{k}\"."
+                else:
+                    msg = f"{k} is not of type <class 'django.db.models.base.ModelBase'>"
+                raise ValueError(msg)
+            return "{}_{}".format(k._meta.app_label, k.__name__.lower())
+
+        if isinstance(model_name, list):
+            for i in model_name:
+                key = create_key(i)
+                self.__MODELS[key] = i
         else:
-            self._models.append(model_name)
+            key = create_key(model_name)
+            self.__MODELS[key] = model_name
 
     def register(self,  model_name: Union[str, List[str]]):
         self.models = model_name
@@ -35,10 +42,9 @@ class ModelList:
         """Return the model"""
         app_name = app_name.lower()
         model_name = model_name.lower()
-        
-        model_names = [i.__name__.lower() for i in self.models if app_name in str(i).lower()]
-        try:
-            idx = model_names.index(model_name)
-        except ValueError:
-            raise ModelNotFoundError(f"{model_name} is not a model")
-        return self.models[idx]
+        key = "{}_{}".format(app_name, model_name)
+
+        model = self.models.get(key)
+        if model:
+            return model
+        raise ModelNotFoundError(f"{model_name} is not a model")

@@ -7,4 +7,6 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("<str:appName>/<str:modelName>/",
          ModelView.as_view(), name="model_view"),
+    path("<str:appName>/<str:modelName>/<int:pk>/",
+         ModelView.as_view(), name="item_view"),
 ]
