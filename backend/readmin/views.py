@@ -89,3 +89,20 @@ class ModelView(BaseAuth, APIView):
         if updated:
             return Response({"success": f"{instance[0].name} updated successfuly"}, status=status.HTTP_200_OK)
         return Response({"error": "Not updated"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, appName, modelName, pk):
+        print(appName, modelName, pk)
+        """Delete an existing instance of a specific model"""
+        try:
+            model = ml.get_model(appName, modelName)
+        except readmin.models.ModelNotFoundError:
+            return Response({"error": f"{modelName} is not a registered model."}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            instance = model.objects.filter(pk=pk)
+        except model.DoesNotExist:
+            return Response({"error": f"Model with id '{pk}' does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        deleted = instance.delete()
+        print(deleted)
+        if deleted:
+            return Response({"success": f"{modelName} instance deleted successfuly"}, status=status.HTTP_200_OK)
+        return Response({"error": "Not deleted"}, status=status.HTTP_400_BAD_REQUEST)
