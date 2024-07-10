@@ -1,4 +1,4 @@
 from .models import ModelList
 
-ml = ModelList()
-register = ml.register
+model_list = ModelList()
+register = model_list.register

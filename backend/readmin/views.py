@@ -7,7 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db import models
 
 import readmin
-from . import ml
+from . import model_list
 from .serializer import BaseSerializer
 
 
@@ -28,7 +28,7 @@ class HomeView(BaseAuth, APIView):
         """
         context = {}
         # Get list of models
-        for v in ml.models.values():
+        for v in model_list.models.values():
             appName = v._meta.app_label.title()
             if appName not in context:
                 context[appName] = []
@@ -40,6 +40,22 @@ class HomeView(BaseAuth, APIView):
 class ModelView(BaseAuth, APIView):
     """API endpoint for getting detailed information about a specific model"""
 
+    def get_model(self, appName, modelName):
+        """Retrieve a model based on the given app name and model name"""
+        try:
+            model = model_list.get_model(appName, modelName)
+        except readmin.models.ModelNotFoundError:
+            return Response({"error": f"{modelName} is not a registered model for {appName}."}, status=status.HTTP_404_NOT_FOUND)
+        return model
+
+    def get_instance(self, model, pk):
+        """Retrieve an instance of a model based on the given primary key"""
+        try:
+            instance = model.objects.get(pk=pk)
+        except model.DoesNotExist:
+            return Response({"error": f"Model with id '{pk}' does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        return instance
+
     def get(self, request, appName, modelName, pk=None):
         """Return detailed information about a specific model
             Parameters:
@@ -48,10 +64,9 @@ class ModelView(BaseAuth, APIView):
                 AppName (str): ModelName (str)
                 ModelDescription (str): Description of the model
         """
-        try:
-            model = ml.get_model(appName, modelName)
-        except readmin.models.ModelNotFoundError:
-            return Response({"error": f"{modelName} is not a registered model for {appName}."}, status=status.HTTP_404_NOT_FOUND)
+        model = self.get_model(appName, modelName)
+        if isinstance(model, Response):
+            return model
         if not pk:
             data = model.objects.all()
             serializer = BaseSerializer(data, model=model, many=True)
@@ -63,11 +78,10 @@ class ModelView(BaseAuth, APIView):
     def post(self, request, appName, modelName):
         """Create a new instance of a specific model
         """
+        model = self.get_model(appName, modelName)
+        if isinstance(model, Response):
+            return model
         data = request.data
-        try:
-            model = ml.get_model(appName, modelName)
-        except readmin.models.ModelNotFoundError:
-            return Response({"error": f"{modelName} is not a registered model."}, status=status.HTTP_404_NOT_FOUND)
         created_model = model.objects.create(**data)
         if created_model:
             return Response({"success": f"{created_model} created successfuly"}, status=status.HTTP_201_CREATED)
@@ -76,33 +90,25 @@ class ModelView(BaseAuth, APIView):
     def put(self, request, appName, modelName, pk):
         """Update an existing instance of a specific model
         """
+        model = self.get_model(appName, modelName)
+        if isinstance(model, Response):
+            return model
         data = request.data
-        try:
-            model = ml.get_model(appName, modelName)
-        except readmin.models.ModelNotFoundError:
-            return Response({"error": f"{modelName} is not a registered model."}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            instance = model.objects.filter(pk=pk)
-        except model.DoesNotExist:
-            return Response({"error": f"Model with id '{pk}' does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        instance = self.get_instance(model, pk)
+        if isinstance(instance, Response):
+            return instance
         updated = instance.update(**data)
         if updated:
             return Response({"success": f"{instance[0].name} updated successfuly"}, status=status.HTTP_200_OK)
         return Response({"error": "Not updated"}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, appName, modelName, pk):
-        print(appName, modelName, pk)
         """Delete an existing instance of a specific model"""
-        try:
-            model = ml.get_model(appName, modelName)
-        except readmin.models.ModelNotFoundError:
-            return Response({"error": f"{modelName} is not a registered model."}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            instance = model.objects.filter(pk=pk)
-        except model.DoesNotExist:
-            return Response({"error": f"Model with id '{pk}' does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        deleted = instance.delete()
-        print(deleted)
-        if deleted:
-            return Response({"success": f"{modelName} instance deleted successfuly"}, status=status.HTTP_200_OK)
-        return Response({"error": "Not deleted"}, status=status.HTTP_400_BAD_REQUEST)
+        model = self.get_model(appName, modelName)
+        if isinstance(model, Response):
+            return model
+        instance = self.get_instance(model, pk)
+        if isinstance(instance, Response):
+            return instance
+        instance.delete()
+        return Response({"success": f"{modelName} instance deleted successfuly"}, status=status.HTTP_200_OK)
