@@ -13,9 +13,9 @@ from .serializer import BaseSerializer
 
 class BaseAuth:
     """Base authentication class"""
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
-    # pass
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
+    pass
 
 
 class HomeView(BaseAuth, APIView):
@@ -26,14 +26,18 @@ class HomeView(BaseAuth, APIView):
             context (dict): 
                 AppName (str): Models (list)
         """
-        context = {}
+        context = {
+            'models': {},
+            'perms': []
+        }
         # Get list of models
         for v in model_list.models.values():
             appName = v._meta.app_label.title()
-            if appName not in context:
-                context[appName] = []
-            context[appName].append(v.__name__)
-
+            if appName not in context['models']:
+                context['models'][appName] = []
+            if request.user.has_perm(f'{appName}.view_{v.__name__}'):
+                context['models'][appName].append(v.__name__)
+        context['perms'] = request.user.permissions if request.user.is_authenticated else []
         return Response(context)
 
 
@@ -64,6 +68,8 @@ class ModelView(BaseAuth, APIView):
                 AppName (str): ModelName (str)
                 ModelDescription (str): Description of the model
         """
+        if not request.user.has_perm(f"{appName}.view_{modelName}"):
+            return Response({"error": "You do not have the required permissions"}, status=status.HTTP_401_UNAUTHORIZED)
         model = self.get_model(appName, modelName)
         if isinstance(model, Response):
             return model
@@ -78,6 +84,8 @@ class ModelView(BaseAuth, APIView):
     def post(self, request, appName, modelName):
         """Create a new instance of a specific model
         """
+        if not request.user.has_perm(f"{appName}.add_{modelName}"):
+            return Response({"error": "You do not have the required permissions"}, status=status.HTTP_401_UNAUTHORIZED)
         model = self.get_model(appName, modelName)
         if isinstance(model, Response):
             return model
@@ -90,6 +98,8 @@ class ModelView(BaseAuth, APIView):
     def put(self, request, appName, modelName, pk):
         """Update an existing instance of a specific model
         """
+        if not request.user.has_perm(f"{appName}.change_{modelName}"):
+            return Response({"error": "You do not have the required permissions"}, status=status.HTTP_401_UNAUTHORIZED)
         model = self.get_model(appName, modelName)
         if isinstance(model, Response):
             return model
@@ -104,6 +114,8 @@ class ModelView(BaseAuth, APIView):
 
     def delete(self, request, appName, modelName, pk):
         """Delete an existing instance of a specific model"""
+        if not request.user.has_perm(f"{appName}.delete_{modelName}"):
+            return Response({"error": "You do not have the required permissions"}, status=status.HTTP_401_UNAUTHORIZED)
         model = self.get_model(appName, modelName)
         if isinstance(model, Response):
             return model
