@@ -4,4 +4,4 @@
 [X] Create
 [X] Update
 [X] Delete
-[ ] How to check specific permissions for each action by user / Seperate crud views
+[X] How to check specific permissions for each action by user / Seperate crud views
