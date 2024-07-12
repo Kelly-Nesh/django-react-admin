@@ -14,7 +14,7 @@ from .serializer import BaseSerializer
 class BaseAuth:
     """Base authentication class"""
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAdminUser, IsAuthenticated]
     # pass
 
 

@@ -5,5 +5,4 @@ from django.contrib.auth.models import Group, User
 from . import register
 
 
-register(Group)
-register(User)
+register([Group, User])
