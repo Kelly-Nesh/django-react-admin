@@ -3,4 +3,5 @@
 [X] Set Authentication and authorization
 [X] Create
 [X] Update
-[ ] Delete
+[X] Delete
+[ ] How to check specific permissions for each action by user / Seperate crud views
