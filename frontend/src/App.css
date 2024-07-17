@@ -1,6 +1,13 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.main {
+  height: calc(100vh - 56px);
+}
+
+.main .menu {
+  max-width: 270px;
+}
+
+.left-menu .row h3 {
+  text-transform: uppercase;
+  font-size: small;
+  color: dark-grey;
 }
