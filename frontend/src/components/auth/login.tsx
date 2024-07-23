@@ -44,7 +44,6 @@ export default function Login() {
               if (login_status === 200) {
                 nav("/");
               } else {
-                alert(login_status);
                 setError("Invalid credentials");
               }
             }}
