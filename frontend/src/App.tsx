@@ -26,25 +26,21 @@ const Home = () => {
           <TopNavbar />
         </Row>
         <Row className="main">
-          <Col
-            xs={4}
-            sm={3}
-            className="bg-primary mh-100 menu overflow-y-scroll"
-          >
-            <LeftMenu />
-          </Col>
-          <Col>
-            <div id="">
-              <div className="" id="">
-                <h2>Recent actions</h2>
-                <h3>My actions</h3>
-                <p>None available</p>
-              </div>
+        <Col xs={4} sm={3} className="bg-primary mh-100 menu overflow-y-scroll">
+          <LeftMenu />
+        </Col>
+        <Col>
+          <div id="">
+            <div className="" id="">
+              <h2>Recent actions</h2>
+              <h3>My actions</h3>
+              <p>None available</p>
             </div>
-            <Outlet />
-          </Col>
-        </Row>
-      </Container>
+          </div>
+          <Outlet />
+        </Col>
+      </Row>
+    </Container>
     </TokenContext.Provider>
   ) : (
     <Navigate to="/login" replace={true} />

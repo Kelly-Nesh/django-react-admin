@@ -12,8 +12,11 @@ export default async function login(details: Details) {
   return await axios
     .post(TOKEN_URL, details)
     .then((response) => {
-      sessionStorage.setItem("token", response.data);
-      return response.data;
+      if (response.status === 200) {
+        sessionStorage.setItem("access", response.data.access);
+        sessionStorage.setItem("refresh", response.data.refresh);
+        return response.status;
+      }
     })
     .catch((err) => console.log(err.message, err.status));
 }

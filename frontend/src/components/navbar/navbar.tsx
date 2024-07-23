@@ -4,8 +4,9 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Accordion from "react-bootstrap/Accordion";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { homeGet } from "../../services/crud/menu_get";
+import { cl, TokenContext } from "../../App";
 
 function TopNavbar() {
   return (
@@ -36,29 +37,37 @@ function TopNavbar() {
 }
 
 export default TopNavbar;
-interface Model {
-  key: string;
-  value: Array<string>;
+interface AppsModels {
+  models: Array<string>;
+  perms: Array<string>;
 }
 export const LeftMenu = () => {
-  const [models, setModels] = useState<Model[]>({});
+  const [models, setModels] = useState<AppsModels>();
+  const { access_token } = useContext<Object>(TokenContext);
+
   useEffect(() => {
-    setModels(homeGet());
-  }, []);
-  const mapped_models: Array<JSX.Element> = Object.keys(models).map(
-    (key: string) => {
+    if (access_token) {
+      homeGet(access_token).then((response) => {
+        if (response) setModels(response);
+      });
+    }
+  }, [access_token]);
+
+  let mapped_models: Array<JSX.Element> | undefined =
+    models &&
+    Object.keys(models.models).map((key: string) => {
       return (
         <Accordion.Item eventKey={key}>
-          <Accordion.Header>{key}</Accordion.Header>
+          <Accordion.Header>{key.toUpperCase()}</Accordion.Header>
           <Accordion.Body>
-            {models[key].map((m: any) => (
+            {models.models[key].map((m: any) => (
               <p className="m-0 mb-1">{m}</p>
             ))}
           </Accordion.Body>
         </Accordion.Item>
       );
-    }
-  );
+    });
+    mapped_models?.sort()
   return (
     <Container className="left-menu">
       <Row>
