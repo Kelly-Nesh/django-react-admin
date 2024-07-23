@@ -11,21 +11,37 @@ import { Container, Row, Col } from "react-bootstrap";
 import Login from "./components/auth/login";
 import { createContext, useEffect, useState } from "react";
 
-const TokenContext = createContext({});
+export const TokenContext = createContext({});
+export const cl = console.log;
+
+const Protection = () => {
+  const [access_token, setAccessToken] = useState<string | null>(
+    sessionStorage.getItem("access")
+  );
+  useEffect(() => {
+    if (typeof access_token !== "string") {
+      const token = sessionStorage.getItem("access");
+      setAccessToken(token);
+    }
+  }, [access_token]);
+  if (typeof access_token === "string") {
+    return (
+      <TokenContext.Provider value={{ access_token }}>
+        <Outlet />
+      </TokenContext.Provider>
+    );
+  } else {
+    return <Navigate to="/login" replace />;
+  }
+};
 
 const Home = () => {
-  const [token, setToken] = useState<Object | null>();
-  useEffect(() => {
-    const tkn = sessionStorage.getItem("token");
-    setToken(tkn);
-  }, []);
-  return token ? (
-    <TokenContext.Provider value={{ token: token }}>
-      <Container fluid>
-        <Row>
-          <TopNavbar />
-        </Row>
-        <Row className="main">
+  return (
+    <Container fluid>
+      <Row>
+        <TopNavbar />
+      </Row>
+      <Row className="main">
         <Col xs={4} sm={3} className="bg-primary mh-100 menu overflow-y-scroll">
           <LeftMenu />
         </Col>
@@ -41,17 +57,14 @@ const Home = () => {
         </Col>
       </Row>
     </Container>
-    </TokenContext.Provider>
-  ) : (
-    <Navigate to="/login" replace={true} />
   );
 };
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
-    children: [],
+    element: <Protection />,
+    children: [{ path: "", element: <Home />, children: [] }],
   },
   {
     path: "/login",
