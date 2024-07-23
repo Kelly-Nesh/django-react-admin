@@ -40,11 +40,11 @@ export default function Login() {
             className="d-block mx-auto"
             onClick={async (e) => {
               e.preventDefault();
-              const access_refresh_token = await login(details);
-              if (access_refresh_token) {
-                console.log(access_refresh_token.refresh);
+              const login_status = await login(details);
+              if (login_status === 200) {
                 nav("/");
               } else {
+                alert(login_status);
                 setError("Invalid credentials");
               }
             }}
