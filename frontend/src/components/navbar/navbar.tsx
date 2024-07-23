@@ -7,6 +7,7 @@ import Accordion from "react-bootstrap/Accordion";
 import { useContext, useEffect, useState } from "react";
 import { homeGet } from "../../services/crud/menu_get";
 import { cl, TokenContext } from "../../App";
+import ModelMap from "./map_models";
 
 function TopNavbar() {
   return (
@@ -37,9 +38,9 @@ function TopNavbar() {
 }
 
 export default TopNavbar;
-interface AppsModels {
-  models: Array<string>;
-  perms: Array<string>;
+export interface AppsModels {
+  models?: Array<string>;
+  perms?: Array<string>;
 }
 export const LeftMenu = () => {
   const [models, setModels] = useState<AppsModels>();
@@ -52,22 +53,7 @@ export const LeftMenu = () => {
       });
     }
   }, [access_token]);
-
-  let mapped_models: Array<JSX.Element> | undefined =
-    models &&
-    Object.keys(models.models).map((key: string) => {
-      return (
-        <Accordion.Item eventKey={key}>
-          <Accordion.Header>{key.toUpperCase()}</Accordion.Header>
-          <Accordion.Body>
-            {models.models[key].map((m: any) => (
-              <p className="m-0 mb-1">{m}</p>
-            ))}
-          </Accordion.Body>
-        </Accordion.Item>
-      );
-    });
-    mapped_models?.sort()
+  cl(models);
   return (
     <Container className="left-menu">
       <Row>
@@ -77,7 +63,7 @@ export const LeftMenu = () => {
       <Row>
         <h3>Apps</h3>
         <Accordion defaultActiveKey="0" flush>
-          {mapped_models}
+          <ModelMap {...models}/>
         </Accordion>
       </Row>
       <Row>
