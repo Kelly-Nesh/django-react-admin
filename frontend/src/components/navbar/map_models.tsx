@@ -15,7 +15,6 @@ export const ModelMap = (data: AppsModels) => {
   }
   const hasModelViewPermission = (app: string, model: string) => {
     if (!data.perms) return false;
-    // cl(`${app}.view_${model}`);
     return data.perms.find((r) => r === `${app}.view_${model.toLowerCase()}`);
   };
 
@@ -23,7 +22,7 @@ export const ModelMap = (data: AppsModels) => {
     const p_models: Array<JSX.Element> = [];
     data.models[key].forEach((m: string) => {
       if (hasModelViewPermission(key, m)) {
-        p_models.push(<p className="m-0 mb-1" key={m}>{m}</p>);
+        p_models.push(<p className="m-0 mb-1" key={m}><a href={`${key}/${m}/`}>{m}</a></p>);
       }
     });
     // cl(p_models);
