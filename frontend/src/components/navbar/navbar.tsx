@@ -8,6 +8,7 @@ import { useContext, useEffect, useState } from "react";
 import { homeGet } from "../../services/crud/menu_get";
 import { cl, TokenContext } from "../../App";
 import ModelMap from "./map_models";
+import logout from "../../services/auth/logout";
 
 function TopNavbar() {
   return (
@@ -18,7 +19,13 @@ function TopNavbar() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#link">Link</Nav.Link>
+            <Nav.Link
+              onClick={() => {
+                logout();
+              }}
+            >
+              Logout
+            </Nav.Link>
             <NavDropdown title="Dropdown" id="basic-nav-dropdown">
               <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
               <NavDropdown.Item href="#action/3.2">
@@ -53,7 +60,7 @@ export const LeftMenu = () => {
       });
     }
   }, [access_token]);
-  cl(models);
+  // cl(models);
   return (
     <Container className="left-menu">
       <Row>
@@ -63,7 +70,7 @@ export const LeftMenu = () => {
       <Row>
         <h3>Apps</h3>
         <Accordion defaultActiveKey="0" flush>
-          <ModelMap {...models}/>
+          <ModelMap {...models} />
         </Accordion>
       </Row>
       <Row>
