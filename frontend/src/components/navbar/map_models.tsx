@@ -22,7 +22,7 @@ export const ModelMap = (data: AppsModels) => {
     const p_models: Array<JSX.Element> = [];
     data.models[key].forEach((m: string) => {
       if (hasModelViewPermission(key, m)) {
-        p_models.push(<p className="m-0 mb-1" key={m}><a href={`${key}/${m}/`}>{m}</a></p>);
+        p_models.push(<p className="m-0 mb-1" key={m}><a href={`/${key}/${m}/`}>{m}</a></p>);
       }
     });
     // cl(p_models);
