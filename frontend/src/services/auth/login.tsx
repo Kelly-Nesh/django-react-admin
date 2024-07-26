@@ -3,6 +3,7 @@ import { cl } from "../../App";
 
 export const API_URL = "http://" + window.location.hostname + ":8000";
 export const TOKEN_URL = API_URL + "/api/token/";
+export let intervalId: number;
 
 interface Details {
   username: string;
@@ -10,12 +11,14 @@ interface Details {
 }
 
 export default async function login(details: Details) {
+  const HOUR = 3_600_000; // ms
   return await axios
     .post(TOKEN_URL, details)
     .then((response) => {
       if (response.status === 200) {
         sessionStorage.setItem("access", response.data.access);
         sessionStorage.setItem("refresh", response.data.refresh);
+        intervalId = setInterval(refreshToken, HOUR);
         return response.status;
       }
     })
@@ -30,7 +33,7 @@ export const refreshToken = () => {
   cl("refresh");
   axios
     .post(TOKEN_URL + "refresh/", {
-      refresh: `Token ${sessionStorage.getItem("refresh")}}`,
+      refresh: `${sessionStorage.getItem("refresh")}`,
     })
     .then((response) => {
       sessionStorage.setItem("access", response.data.access);
