@@ -12,6 +12,9 @@ export default function Login() {
 
   const [error, setError] = useState("");
   const nav = useNavigate();
+  const noDetails = () => {
+    return details.username === "" || details.password === "";
+  };
   return (
     <Row className="vh-100 align-items-center justify-content-center">
       <Col xs={8} sm={5} md={4} className="form-wrap rounded-3 py-5 px-4">
@@ -22,6 +25,7 @@ export default function Login() {
             type="text"
             placeholder="Username"
             className="my-3"
+            required
             onChange={(i) => {
               setDetails({ ...details, username: i.target.value });
             }}
@@ -30,6 +34,7 @@ export default function Login() {
             type="password"
             placeholder="Password"
             className="my-3"
+            required
             onChange={(e) => {
               setDetails({ ...details, password: e.target.value });
             }}
@@ -40,6 +45,10 @@ export default function Login() {
             className="d-block mx-auto"
             onClick={async (e) => {
               e.preventDefault();
+              if (noDetails()) {
+                setError("Please input username and password");
+                return;
+              }
               const login_status = await login(details);
               if (login_status === 200) {
                 nav("/");
