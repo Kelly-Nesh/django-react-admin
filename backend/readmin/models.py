@@ -1,3 +1,4 @@
+from django.contrib.admin import site
 from typing import Union, List
 from .serializer import BaseSerializer
 from django.db import models
@@ -6,6 +7,16 @@ from django.db import models
 class ModelNotFoundError(Exception):
     pass
 
+
+# def register_with_admin(model_class):
+#   site.register(model_class)
+#   return model_class
+
+# # Usage in your models.py
+
+
+# @register_with_admin
+# class MyModel(models.Model):
 
 class ModelList:
     __MODELS = {}

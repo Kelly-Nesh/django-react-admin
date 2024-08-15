@@ -1,13 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication  # type: ignore
 from django.db import models
+from django.http import JsonResponse
 
-import readmin
-from . import model_list
+
+from .models import ModelNotFoundError
+from . import model_list, model_form_list
 from .serializer import BaseSerializer
 
 
@@ -23,7 +24,7 @@ class HomeView(BaseAuth, APIView):
 
     def get(self, request):
         """Return list of registered models
-            context (dict): 
+            context (dict):
                 AppName (str): Models (list)
         """
         context = {
@@ -48,7 +49,7 @@ class ModelView(BaseAuth, APIView):
         """Retrieve a model based on the given app name and model name"""
         try:
             model = model_list.get_model(appName, modelName)
-        except readmin.models.ModelNotFoundError:
+        except ModelNotFoundError:
             return Response({"error": f"{modelName} is not a registered model for {appName}."}, status=status.HTTP_404_NOT_FOUND)
         return model
 
@@ -64,7 +65,7 @@ class ModelView(BaseAuth, APIView):
         """Return detailed information about a specific model
             Parameters:
                 modelName (str): Name of the model
-            context (dict): 
+            context (dict):
                 AppName (str): ModelName (str)
                 ModelDescription (str): Description of the model
         """
@@ -76,10 +77,14 @@ class ModelView(BaseAuth, APIView):
         if not pk:
             data = model.objects.all()
             serializer = BaseSerializer(data, model=model, many=True)
+            return Response(serializer.data)
         else:
             data = model.objects.get(pk=pk)
-            serializer = BaseSerializer(data, model=model)
-        return Response(serializer.data)
+            modelForm = model_form_list.get_form(model, data)
+            if modelForm is not None:
+                print(modelForm)
+                return Response(f"{modelForm.as_table()}")
+            return Response("sth went wrong", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, appName, modelName):
         """Create a new instance of a specific model
