@@ -1,8 +1,9 @@
+import "./modelview.css";
 import { useContext, useEffect, useState } from "react";
 import { cl, TokenContext } from "../../App";
 import { modelGet } from "../../services/crud/model_crud";
 import { useParams } from "react-router-dom";
-import { Col, Row, Table } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 const ModelView = () => {
   const [models, setModels] = useState([]);
@@ -16,7 +17,7 @@ const ModelView = () => {
       // cl(res_models, "res");
     };
     getModels();
-  }, []);
+  }, [token]);
   // cl(models, "preformat");
   return <ModelFormat props={models} />;
 };
@@ -26,7 +27,7 @@ export default ModelView;
 const ModelFormat = ({ props: modelData }: { props: [Object] }) => {
   // Format model fields and data
 
-  cl(modelData);
+  // cl(modelData);
   if (!modelData) return <></>;
   const modelKeys = Object.keys(modelData.pop() || {});
   if (modelKeys[0] === "id") modelKeys.shift();
@@ -36,26 +37,36 @@ const ModelFormat = ({ props: modelData }: { props: [Object] }) => {
       <tr key={idx}>
         {modelKeys.map((key: string) => {
           // cl(key, model, model[key]);
-          return <td className="text-truncate" key={key}>{model[key]}</td>;
+          return (
+            <td
+              className="text-truncate table-border"
+              // style={{ width: `${100 / modelKeys.length}%` }}
+              key={key}
+            >
+              <a href={`edit/${model["id"]}/`}>{model[key]}</a>
+            </td>
+          );
         })}
       </tr>
     );
   });
-  cl(mapped_models, "mapped");
+  // cl(mapped_models, "mapped");
   return (
-    <Table bordered hover>
-      <thead>
-        <tr>
-          {modelKeys.map((key, idx) => {
-            return (
-              <th key={key + idx}>
-                <h3 className="text-capitalize">{key}</h3>
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
-      <tbody>{mapped_models}</tbody>
-    </Table>
+    <Container>
+      <table className="overflow-x-scroll table-border w-100">
+        <thead>
+          <tr>
+            {modelKeys.map((key, idx) => {
+              return (
+                <th key={key + idx} className="text-capitalize table-border">
+                  {key}
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>{mapped_models}</tbody>
+      </table>
+    </Container>
   );
 };

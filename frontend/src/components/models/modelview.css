@@ -1,0 +1,8 @@
+.table-border {
+  border: 1px dotted dodgerblue;
+  border-collapse: collapse;
+}
+th, td {
+  max-width: 25%;
+  padding: 0.25em;
+}

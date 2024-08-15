@@ -11,14 +11,12 @@ interface Details {
 }
 
 export default async function login(details: Details) {
-  const HOUR = 3_600_000; // ms
   return await axios
     .post(TOKEN_URL, details)
     .then((response) => {
       if (response.status === 200) {
         sessionStorage.setItem("access", response.data.access);
         sessionStorage.setItem("refresh", response.data.refresh);
-        intervalId = setInterval(refreshToken, HOUR);
         return response.status;
       }
     })
@@ -37,6 +35,7 @@ export const refreshToken = () => {
     })
     .then((response) => {
       sessionStorage.setItem("access", response.data.access);
+      location.reload()
       return response.status;
     })
     .catch((err) => console.log(err.message, err.status));
