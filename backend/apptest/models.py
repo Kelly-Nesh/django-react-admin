@@ -50,4 +50,4 @@ class MyModel(models.Model):
         return self.name
 
 
-register([MyModel, Category, Product, Order])
+# register([MyModel, Category, Product, Order])
