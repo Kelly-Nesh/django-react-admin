@@ -14,6 +14,6 @@ const ModelEdit = () => {
     model_res?.then((r) => setSingleModel(r));
   }, [id, model]);
   // cl(single_model);
-  return <>{parse(single_model)}</>;
+  return <table><tbody>{parse(single_model, { trim: true })}</tbody></table>;
 };
 export default ModelEdit;

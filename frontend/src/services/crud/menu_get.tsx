@@ -1,20 +1,6 @@
 import axios from "axios";
-import { API_URL, refreshToken } from "../auth/login";
+import { API_URL, custom_axios } from "../auth/login";
 import { cl } from "../../App";
-
-export const custom_axios = axios.create();
-custom_axios.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    cl(err.toJSON());
-    if (err.response.status === 401) {
-      refreshToken();
-      location.reload();
-    } else {
-      return err;
-    }
-  }
-);
 
 export const homeGet = async (token: string) => {
   if (typeof token !== "string") return;

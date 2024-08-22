@@ -28,7 +28,7 @@ export default async function login(details: Details) {
   */
 export const refreshToken = () => {
   // Make a POST request to refresh token
-  cl("refresh");
+  // cl("refresh");
   axios
     .post(TOKEN_URL + "refresh/", {
       refresh: `${sessionStorage.getItem("refresh")}`,
@@ -40,3 +40,19 @@ export const refreshToken = () => {
     })
     .catch((err) => console.log(err.message, err.status));
 };
+
+
+
+export const custom_axios = axios.create();
+
+custom_axios.interceptors.response.use(
+  res => res,
+  (err) => {
+    cl(err.toJSON());
+    if (err.response.status === 401) {
+      return refreshToken();
+    } else {
+      return err;
+    }
+  }
+);
