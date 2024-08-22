@@ -10,7 +10,7 @@ td {
 th {
   vertical-align: middle;
 }
-input:not([type="checkbox"]), select {
+input:not([type="checkbox"]), select, textarea {
   display: block;
   width: 100%;
   padding: 0.375rem 0.75rem;
