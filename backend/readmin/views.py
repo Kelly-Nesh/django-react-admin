@@ -82,7 +82,7 @@ class ModelView(BaseAuth, APIView):
             data = model.objects.get(pk=pk)
             modelForm = model_form_list.get_form(model, data)
             if modelForm is not None:
-                print(modelForm)
+                # print(modelForm)
                 return Response(f"{modelForm.as_table()}")
             return Response("sth went wrong", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
