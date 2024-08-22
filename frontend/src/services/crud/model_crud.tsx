@@ -1,6 +1,4 @@
-import axios from "axios";
-import { API_URL, refreshToken } from "../auth/login";
-import { cl } from "../../App";
+import { API_URL, custom_axios } from "../auth/login";
 
 export const modelGet = (
   token: string,
@@ -9,10 +7,10 @@ export const modelGet = (
   id: number = -1
 ) => {
   if (typeof token !== "string") return;
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  custom_axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const MODEL_URL = `${API_URL}/${app}/${model}/${id !== -1 ? id + "/" : ""}`;
 
-  return axios
+  return custom_axios
     .get(MODEL_URL)
     .then((response) => {
       return response.data;
