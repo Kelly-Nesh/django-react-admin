@@ -20,7 +20,7 @@ class BaseAuth:
     # pass
 
 
-class MenuView(BaseAuth, GenericAPIView):
+class MenuView(BaseAuth, ListAPIView):
     """API endpoint for getting list of registered models"""
 
     def get(self, request):
