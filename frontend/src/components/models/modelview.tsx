@@ -9,30 +9,44 @@ const ModelView = () => {
   const [models, setModels] = useState([]);
   const token = useContext(TokenContext).access_token;
   const { app, model } = useParams();
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
-    // cl(app, model);
+    // cl(app, model, token, 'mv-----');
     const getModels = async () => {
-      const res_models = await modelGet(token, app, model);
+      const res_models = await modelGet(token, app, model, -1, page);
       setModels(res_models);
       // cl(res_models, "res");
     };
     getModels();
-  }, [token]);
+  }, [token, page]);
   // cl(models, "preformat");
-  return <ModelFormat props={models} />;
+  return <ModelFormat models={models}  page={ setPage} />;
 };
 
 export default ModelView;
 
-const ModelFormat = ({ props: modelData }: { props: [Object] }) => {
+interface RespModelData {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: [Object];
+}
+
+const ModelFormat = ({models:modelData, page:setPage}) => {
   // Format model fields and data
-
-  // cl(modelData);
-  if (!modelData) return <></>;
-  const modelKeys = Object.keys(modelData.pop() || {});
+  if (!modelData.results) return <></>;
+  cl(modelData.results)
+  const modelKeys = Object.keys(modelData.results.pop() || {});
   if (modelKeys[0] === "id") modelKeys.shift();
+  const next = modelData.next ? modelData.next.split("=").pop() : null;
+  const prev = modelData.previous ? modelData.previous.split("=").pop() : null;
 
-  const mapped_models: Array<JSX.Element> = modelData.map((model: {}, idx) => {
+  const pager = (n: number) => {
+    if (isNaN(n)) {n=1};
+    setPage(n)
+  }
+  const mapped_models: Array<JSX.Element> = modelData.results.map((model: {}, idx) => {
     return (
       <tr key={idx}>
         {modelKeys.map((key: string) => {
@@ -67,6 +81,14 @@ const ModelFormat = ({ props: modelData }: { props: [Object] }) => {
         </thead>
         <tbody>{mapped_models}</tbody>
       </table>
+      <div className="pagination">
+        <p className="prev">
+          {prev && <button  className='btn btn-tertiary m-2' onClick={() => {pager(parseInt(prev))}}>Previous</button>}
+        </p>
+        <p className="next">
+          {next && <button className=' btn btn-tertiary m-2' onClick={()=>{pager(parseInt(next))}}>Next</button>}
+        </p>
+      </div>
     </Container>
   );
 };
