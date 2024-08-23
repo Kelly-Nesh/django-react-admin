@@ -1,14 +1,14 @@
 # from rest_framework.routers import SimpleRouter
 from django.urls import path
-from .views import HomeView, ModelView
+from .views import MenuView, ModelListView,ModelRetrieveUpdateDestroyAPIView, ModelCreateAPIView
 
 
 urlpatterns = [
-    path("", HomeView.as_view(), name="home"),
+    path("", MenuView.as_view(), name="home"),
     path("<str:appName>/<str:modelName>/",
-         ModelView.as_view(), name="model_view"),
+         ModelListView.as_view(), name="model_list_view"),
     path("<str:appName>/<str:modelName>/<int:pk>/",
-         ModelView.as_view(), name="item_view"),
+         ModelRetrieveUpdateDestroyAPIView.as_view(), name="item_retrieve_update_destroy"),
     path("<str:appName>/<str:modelName>/add/", 
-         ModelView.as_view(), name="model_add"),
+         ModelCreateAPIView.as_view(), name="model_create_view"),
 ]

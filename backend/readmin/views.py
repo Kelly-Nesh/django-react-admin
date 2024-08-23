@@ -1,7 +1,8 @@
-from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView, ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.authentication import JWTAuthentication  # type: ignore
 from django.db import models
 from django.http import JsonResponse
@@ -19,7 +20,7 @@ class BaseAuth:
     # pass
 
 
-class HomeView(BaseAuth, APIView):
+class MenuView(BaseAuth, GenericAPIView):
     """API endpoint for getting list of registered models"""
 
     def get(self, request):
@@ -41,9 +42,23 @@ class HomeView(BaseAuth, APIView):
             context['perms'] = request.user.get_all_permissions()
         return Response(context)
 
+class ModelBase(BaseAuth):
+    """Base model class"""
+    pagination_class = PageNumberPagination
 
-class ModelView(BaseAuth, APIView):
-    """API endpoint for getting detailed information about a specific model"""
+    def get_model(self, appName, modelName):
+        """Retrieve a model based on the given app name and model name"""
+        try:
+            model = model_list.get_model(appName, modelName)
+        except ModelNotFoundError:
+            return Response({"error": f"{modelName} is not a registered model for {appName}."}, status=status.HTTP_404_NOT_FOUND)
+        return model
+
+
+class ModelView(BaseAuth, GenericAPIView):
+    """API endpoint for listing all models and 
+        getting detailed information about a specific model"""
+    pagination_class = PageNumberPagination
 
     def get_model(self, appName, modelName):
         """Retrieve a model based on the given app name and model name"""
@@ -86,6 +101,8 @@ class ModelView(BaseAuth, APIView):
                 return Response(f"{modelForm.as_table()}")
             return Response("sth went wrong", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class ModelCreateAPIView(ModelBase, CreateAPIView):
     def post(self, request, appName, modelName):
         """Create a new instance of a specific model
         """
@@ -99,6 +116,30 @@ class ModelView(BaseAuth, APIView):
         if created_model:
             return Response({"success": f"{created_model} created successfuly"}, status=status.HTTP_201_CREATED)
         return Response({"error": "Not created"}, status)
+
+
+class ModelRetrieveUpdateDestroyAPIView(ModelBase, RetrieveUpdateDestroyAPIView):
+
+    def get(self, request, appName, modelName, pk):
+        """
+        Retrieve an existing instance of a specific model.
+        
+        Parameters:
+            request (Request): The incoming HTTP request.
+            appName (str): The name of the application.
+            modelName (str): The name of the model.
+            pk (int): The primary key of the instance to retrieve.
+        
+        Returns:
+            Response: A response containing the retrieved instance, or an error message if the instance cannot be retrieved.
+        """
+        model = self.get_model(appName, modelName)
+        data = model.objects.get(pk=pk)
+        modelForm = model_form_list.get_form(model, data)
+        if modelForm is not None:
+            # print(modelForm)
+            return Response(f"{modelForm.as_table()}")
+        return Response("sth went wrong", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request, appName, modelName, pk):
         """Update an existing instance of a specific model
@@ -129,3 +170,23 @@ class ModelView(BaseAuth, APIView):
             return instance
         instance.delete()
         return Response({"success": f"{modelName} instance deleted successfuly"}, status=status.HTTP_200_OK)
+
+
+class ModelListView(ModelBase, ListAPIView):
+    """API endpoint for listing data for a model"""
+    pagination_class = PageNumberPagination
+    page_size = 5
+
+    def get(self, request, appName, modelName):
+        """Return model list if user has permissions"""
+        if not request.user.has_perm(f"{appName.lower()}.view_{modelName.lower()}"):
+            return Response({"error": "You do not have the required permissions"}, status=status.HTTP_401_UNAUTHORIZED)
+        model = self.get_model(appName, modelName)
+        if isinstance(model, Response):
+            return model
+        data = model.objects.all()
+        serializer = BaseSerializer(data, model=model, many=True)
+        # return Response(serializer.data)
+
+        page = self.paginate_queryset(serializer.data)
+        return self.get_paginated_response(page)
